@@ -1,0 +1,50 @@
+{% extends 'topnav.html' %}
+
+{% block content %}
+<html>
+
+    <head>
+        <link	rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/new_player.css') }}">
+    </head>
+
+    <body>
+        
+        <script type="text/javascript">
+            function showDiv(select){
+               if(select.value=="novato"){
+                document.getElementById('host').style.display = "inline-block";
+               } else{
+                document.getElementById('host').style.display = "none";
+               }
+            } 
+        </script>
+
+        <form action="" method="POST">
+            
+            
+
+            <h4>Adicionar novo jogador</h4>
+            <div id="new_player">
+                <div id="select">
+                    <select id="player_type" name="type_select" onchange="showDiv(this)">
+                        <option value="veterano">Veterano</option>
+                        <option value="novato">Novato</option>
+                    </select><br><br>
+                </div>
+
+                <label for="player_name">Jogador:</label>
+                <input type="text" id="player_name" name="player_name" value="">
+
+                <div id="host" style="display: none;">
+                    <label for="host_name">Anfitrião:</label>          
+                    <input type="text" id="host_name" name="host_name" value=""> 
+                </div> 
+                
+            </div>
+            <br>
+            <input class="btn" type="submit" value="Adicionar Jogador">
+
+        </form>
+    </body>
+</html>
+{% endblock %}

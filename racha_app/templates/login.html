@@ -1,0 +1,21 @@
+<html>
+    <head>        
+        <link	rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/login.css') }}">
+        <!-- <meta   name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    </head>
+    <body>
+        <div class="container-login-screen">
+            <div class="login-screen">
+                <h1>Login</h1>            
+                <form action="" method="POST">
+                    <input type="text" class="login-field" placeholder="Username" name="username" value="{{ request.form.username }}">    
+                    <input type="password" class="login-field" placeholder="Password" name="password" value="{{ request.form.password }}">
+                    <input class="btn btn-default" type="submit" value="Login">
+                </form>
+                {% if error %}
+                <p class="error"><strong>{{ error }}</strong></p>
+                {% endif %} 
+            </div>
+        </div>
+    </body>
+</html>

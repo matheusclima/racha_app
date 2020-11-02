@@ -1,0 +1,51 @@
+{% extends 'topnav.html' %}
+
+{% block content %}
+<html>
+
+    <head>
+        <link	rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/team_match.css') }}">
+    </head>
+
+    <body>
+        {% set team_class = ["team-A", "team-B", "team-C", "team-D"] %}
+        {% set bg_color = ["white", "orange", "black", "lightgreen"] %}
+        <form action="" method="POST">
+            <input class="date_btn" type="date" name="date" value="{{ today }}">
+            <input class="btn" type="submit" value="Adicionar Planilha">
+            {% for k in range(4) %}
+            <table class="team-table">
+                <tr>
+                    <div class="team-container">
+                        <th style="background-color: {{ bg_color[k] }}" rowspan="7">
+                            <h3 class="rotate-text">{{"Time "+ team_class[k].split('-')[1]}}</h3>
+                        </th>
+                    </div>
+                    <th class="team-player">Jogador</th>
+                    {% for n in range(6) %}
+                    <th class="team-match">{{ "Jogo " + (n+1)|string() }}</th>
+                    {% endfor %}
+                </tr>
+                {% for i in range(6) %}
+                <tr>
+                    <td class="team-player">
+                        <select name="stats" value="">
+                            <option>Select Player</option>
+                            {% for p in players %}
+                            <option>{{ p }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    {% for j in range(6) %}
+                    <td class="team-match">
+                        <input type="number" class="goal-field" name="stats" min="0" value="0">
+                    </td>
+                    {% endfor %}
+                </tr>   
+                {% endfor %}
+            </table>
+            {% endfor %}
+        </form>
+    </body>
+</html>
+{% endblock %}
