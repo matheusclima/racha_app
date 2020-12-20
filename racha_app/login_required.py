@@ -8,7 +8,7 @@ def login_required(f):
         if 'logged_in' in session:
             return f(*args, **kwargs)
         else:
-            return redirect(url_for('login_page'))
+            return redirect(url_for('login_blueprint.login_page'))
     
     return wrap
 

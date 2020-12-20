@@ -4,3 +4,6 @@ Flask-SQLAlchemy
 PyJWT
 psycopg2-binary
 celery
+passlib
+pandas
+requests

@@ -1,0 +1,20 @@
+{% extends 'topnav.html' %}
+
+{% block content %}
+<html>
+    <body>
+        {% set team_letters = ["A", "B", "C", "D"] %}
+        {% set bg_color = ["white", "orange", "black", "lightgreen"] %}
+        <form action="" method="POST">
+            <input class="btn" type="submit" placeholder="Adicionar Partidas">
+            <br>
+            <select id="select_teams" size="12" onchange="createMatch(this.value)">
+                <option>A x B </option>
+                <option>B x A </option>
+            </select>
+            <p id="team1"></p>
+        </form>
+        <script type="text/javascript" src="static/app.js"></script>
+    </body>
+</html>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'topnav.html' %}
+
+{% block content %}
+
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/select_team.css') }}">
+</head>
+
+<body>
+
+    {% set team_class = ["A", "B", "C", "D"] %}
+    {% set bg_color = ["white", "orange", "black", "lightgreen"] %}
+
+    <div page id="page1">
+        <form action="" method="POST">
+            <input change-page class="btn" type="submit" value="Continuar">
+            {% for k in range(1) %}
+            <table class="team-table">
+                <tr>
+                    <div class="team-container">
+                        <th style="background-color: {{ bg_color[k] }}" rowspan="7">
+                            <h3 class="rotate-text">{{"Time "+ team_class[k]}}</h3>
+                        </th>
+                    </div>
+                    <th class="team-player">Jogador</th>
+                </tr>
+                {% for i in range(2) %}
+                <tr>
+                    <td class="team-player">
+                        <select teste name="{{ team_class[k] }}">
+                            <option>Select Player</option>
+                            {% for p in players %}
+                            <option>{{ p }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% endfor %}
+        </form>
+    </div>
+<!-- 
+    <div page id="page2" style="display: none; height: 100%;">
+
+        <form action="" method="POST" style="height: inherit; padding-left: 50px; padding-top: 15px;">
+            <input change-page class="btn" type="button" value="Voltar">
+            <input class="btn" type="button" value="Adicionar partida">
+
+            <div style="height: 330px; padding-bottom: 20px;">
+                <select id="select_match" size="12" style="float: left; margin-top: 25px;">
+                    <option>A x B</option>
+                    <option>B x A</option>
+                </select>
+                {% for k in range(2) %}
+                <table match class="team-table" style="margin-right: 10px; display: none;">
+                    <tr>
+                        <div class="team_container" style="display: inline-block;">
+                            <th rowspan="7">
+                                <h3 team class="rotate-text"></h3>
+                            </th>
+                        </div>
+                        <th class="team-player">Jogador</th>
+                        <th class="team-match">Gols</th>
+                    </tr>
+                    {% for i in range(6) %}
+                    <tr>
+                        <td players class="team-player" style="font-weight: bold;"></td>
+                        <td class="team-match">
+                            <input type="number" class="goal-field" name="stats" min="0" value="0">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                {% endfor %}
+            </div>
+        </form>
+
+    </div> -->
+
+    <!-- <script>
+
+        var teamsObject = {}
+        var matchesObject = {}
+
+        function changePage(show, hide) {
+            show.style.display = 'block';
+            hide.style.display = 'none';
+            return false;
+        }
+
+        const pages = document.querySelectorAll('[page]')
+        const buttons = document.querySelectorAll('[change-page]')
+
+        buttons[0].onclick = function (e) {
+            e.preventDefault()
+
+            const form = e.target.parentNode
+            const formData = new FormData(form)
+            for (let data of formData) {
+
+                if (teamsObject[data[0]]) {
+                    teamsObject[data[0]].push(data[1])
+
+                } else {
+                    teamsObject[data[0]] = [data[1]]
+
+                }
+                console.log('Added data ' + data[1] + ' to key ' + data[0])
+            }
+            // teamsJson = JSON.stringify(teamsObject)
+            select = document.querySelectorAll('[teste]')
+            select.selectedIndex = 'Select Player'
+            changePage(pages[1], pages[0])
+        }
+
+        buttons[1].onclick = function (e) {
+            changePage(pages[0], pages[1])
+            teamsObject = {}
+        }
+
+        document.getElementById('select_match').onchange = function (e) {
+
+            const matchSelector = e.target
+            const form = matchSelector.parentNode.parentNode
+            const formData = new FormData(form)
+            const h3Content = document.querySelectorAll('[team]')
+            const table = document.querySelectorAll('[match]')
+            const bgColors = {
+                "A": "white",
+                "B": "orange",
+                "C": "black",
+                "D": "lightgreen"
+            }
+
+            var matchInfo = matchSelector.value,
+                home = matchInfo[0],
+                away = matchInfo[matchInfo.length - 1];
+
+            var match = [home, away]
+
+            for (var i = 0; i < match.length; i++) {
+                table[i].style.display = 'table'
+                h3Content[i].parentNode.style['background-color'] = bgColors[match[i]]
+                h3Content[i].innerHTML = 'Time ' + match[i]
+                console.log(teamsObject)
+
+                for (var j = 0; j < teamsObject[match[i]].length; j++) {
+                    index = j + 6 * i
+                    document.querySelectorAll('[players]')[index].innerHTML = teamsObject[match[i]][j]
+                }
+            }
+
+            for (let data of formData) {
+                console.log(data, index)
+            }
+            form.reset()
+        }
+
+    </script> -->
+
+</body>
+
+</html>
+{% endblock %}

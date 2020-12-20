@@ -1,15 +1,24 @@
 <html>
-    <head>        
-        <link	rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/topnav.css') }}">
-    </head>
-    <body>
-        <div class = "topnav">            
-            <a href="/racha">Racha</a>
-            <a href="/colocacao">Colocação</a>
-            <a href="/artilharia">Artilharia</a>
-            <a style="float:right" class="active" href="/logout">Sair</a>
-        </div>
-        {% block content %}
-        {% endblock %}
-    </body>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/topnav.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+</head>
+
+<body>
+    <div class="topnav">
+        <a class="img" href="/" style="padding: 0%;">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" style="float: left; margin-left: 2px;">
+        </a>
+        <a href="/racha">Racha</a>
+        <a href="/colocacao">Colocação</a>
+        <a href="/artilharia">Artilharia</a>
+        <a style="float:right" class="active" href="/logout">Sair</a>
+    </div>
+
+    {% block content %}
+    {% endblock %}
+
+</body>
+
 </html>

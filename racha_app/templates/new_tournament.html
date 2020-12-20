@@ -1,0 +1,19 @@
+{% extends 'topnav.html' %}
+
+{% block content %}
+<html>
+
+    <head>
+        <link	rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/select_team.css') }}">
+    </head>
+
+    <body>
+
+        <form method="POST" action="">
+            <input class="date_btn" type="date" name="day" value="{{ today }}">
+            <input class="btn" type="submit" value="Novo torneio">
+        </form>
+    
+    </body>
+</html>
+{% endblock %}

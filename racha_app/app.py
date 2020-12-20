@@ -1,19 +1,25 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask, render_template, redirect, url_for, request, session
+from racha_app.controllers.login import app as login_app
 from racha_app.login_required import login_required
-from racha_app.models.jogador import Jogador
-from passlib.hash import sha256_crypt
+from racha_app.models.player import Player
+from racha_app.models.goal import Goal  
 from flask_migrate import Migrate
-# from dbcon import connect
-from datetime import date
 from racha_app.db import db
+from datetime import date
+from racha_app.repositories.player_repository import PlayerRepository
+from racha_app.repositories.goal_repository import GoalRepository
+from racha_app.models.match import Match
+from racha_app.models.team import Team
+from racha_app.models.tournament import Tournament
+from racha_app.repositories.tournament_repository import TournamentRepository
 
-# import pandas as pd
-# import numpy as np
+import numpy as np
+import pandas as pd
 import psycopg2
-# import secrets
-import gc
+import secrets
+import datetime
 
 app = Flask(__name__)
 
@@ -21,100 +27,69 @@ app.config.from_pyfile('config/config.py')
 db.init_app(app)
 migrate = Migrate(app, db)
 
-@app.route('/login', methods = ['GET', 'POST'])
-def login_page():
+app.register_blueprint(login_app)
 
-    error = ''
-    try:
-        cursor, conn = connect('db_parameters.json')
+# Add new players to database
+@app.route('/s', methods = ["GET"])
+def render_new_player_page():
+    return render_template("new_player.html")
 
-        if request.method == "POST":
-            
-            attempted_username = request.form['username']
+@app.route('/s', methods = ["POST"])
+def create_player():
+    player = Player(request.form["player_name"])
+    PlayerRepository.add(player)
+    return redirect(url_for("new_player"))
 
-            select_user = ("SELECT username, password FROM users WHERE username = %s")
-            cursor.execute(select_user, (attempted_username,))
 
-            password = cursor.fetchone()[1]
-            attempted_password = request.form['password']
 
-            cursor.close()
-            conn.close()
-            
-            if sha256_crypt.verify(attempted_password, password):
-
-                session["logged_in"] = True
-                session['username'] = request.form['username']
-                return redirect(url_for('artilharia'))
-            else:
-                error = 'Login Inválido'
-
-        return render_template('login.html', is_true = True, error = error)
-
-    except Exception as e:
-        return render_template('login.html', is_true = True, error = error)
-
-@app.route('/logout')
-def logout():
-    session.clear()
-    gc.collect()
-    return redirect(url_for('login_page'))           
-
-@app.route('/artilharia')
-# @login_required
-def artilharia():
-    return render_template('index.html', is_true = True)
-
-@app.route('/cu', methods = ["GET", "POST"])
-# @login_required
-def colocacao():
-    
-    cursor, conn = connect('db_parameters.json')
-    select_players = ("SELECT nome FROM players")
-
-    today = date.today().strftime("%Y-%m-%d")
-    cursor.execute(select_players)
-    players = list(list(zip(*cursor.fetchall()))[0])
-    
-    if request.method == "POST":
-
-        day = request.form["date"]
-        
-        stats = request.form.getlist("stats")
-        stats = [stats[x:x+7] for x in range(0,len(stats),7)]
-
-        df = pd.DataFrame(stats, columns = ["Jogador", "Jogo 1", "Jogo 2", "Jogo 3", "Jogo 4", "Jogo 5", "Jogo 6"])
-        a, b, c, d = np.array_split(df, 4)
-        print(a)
-        return render_template("result.html", is_true = True, a = a, b = b, c = c, d = d)
-        
-    return render_template("team_match.html", is_true = True, today = today, players = players)
-
+# Select players for each team
 @app.route('/', methods = ["GET", "POST"])
-def new_player():
-    jogador = Jogador('Veras')
-    db.session.add(jogador)
-    db.session.commit()
-
-    cursor, conn = connect('racha_app/db_parameters.json')
-    select_players = ("SELECT nome FROM players")
-
-    cursor.execute(select_players)
-    players = list(list(zip(*cursor.fetchall()))[0])
+# @login_required
+def new_tournament():
     
+    today = date.today().strftime("%Y-%m-%d")
+
     if request.method == "POST":
+        TournamentRepository.add(Tournament(request.form["day"]))
+        tournament = db.session.query(Tournament).filter_by(date = today).first()
+        return redirect(url_for("select_team", id = tournament.id))
+
+    return render_template("new_tournament.html", today = today)
+
+
+@app.route('/tournament/<id>', methods = ["GET", "POST"])
+# @login_required
+def select_team(id):
+    
+    players = [player.name for player in PlayerRepository.select_all(Player)]
+    day = TournamentRepository.get_date(Tournament, id)
+    print(day)
+    if request.method == "POST":
+        a = request.form.getlist("A")
+        print(a)
+        team_A = Team(0, "A")
         
-        player_name = request.form["player_name"]
-        host_name = request.form["host_name"]
-
-        insert_player = ("INSERT INTO players (nome, host) VALUES (%s, %s)")
-        val = (player_name, host_name)
-
-        cursor.execute(insert_player, val)
-        conn.commit()        
+        team_A.players.append(PlayerRepository.select(Player, a[0]))
+        team_A.players.append(PlayerRepository.select(Player, a[1]))
+        
+        db.session.add(team_A)
+        db.session.commit()
 
 
-    return render_template("new_player.html", is_true = True, players = players)
+        return render_template("select_team.html", is_true = True, players = players)
+        
 
+        
+    return render_template("select_team.html", is_true = True, players = players)
+
+
+@app.route('/test', methods = ["GET", "POST"])
+def matches():
+    # a = request.args.get('a', None)
+    # b = request.args.get('b', None)
+    
+
+    return render_template("matches.html", is_true = True)
+ 
 if __name__ == "__main__":
     app.run(debug=True)
