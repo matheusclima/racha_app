@@ -3,14 +3,13 @@ from racha_app.db import db
 
 class Repository:
     
-    def add(self):
-        db.session.add(self)
+    @staticmethod
+    def add(entity):
+        db.session.add(entity)
         db.session.commit()
 
-    def delete(self):
-        db.session.delete(self)
+    @staticmethod
+    def delete(entity):
+        db.session.delete(entity)
         db.session.commit()
-
-    def select_all(self):
-        return db.session.query(self).order_by(self.name).all()
 

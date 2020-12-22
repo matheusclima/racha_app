@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from flask import Flask, render_template, redirect, url_for, request, session
+from flask import Flask, render_template, redirect, url_for, request, session, jsonify
 from racha_app.controllers.login import app as login_app
 from racha_app.login_required import login_required
 from racha_app.models.player import Player
@@ -14,12 +14,11 @@ from racha_app.models.match import Match
 from racha_app.models.team import Team
 from racha_app.models.tournament import Tournament
 from racha_app.repositories.tournament_repository import TournamentRepository
+from racha_app.repositories.team_repository import TeamRepository
 
-import numpy as np
-import pandas as pd
-import psycopg2
 import secrets
 import datetime
+
 
 app = Flask(__name__)
 
@@ -41,55 +40,70 @@ def create_player():
     return redirect(url_for("new_player"))
 
 
-
-# Select players for each team
-@app.route('/', methods = ["GET", "POST"])
+# Create a tournament and add to database
+@app.route('/', methods = ["GET"])
 # @login_required
-def new_tournament():
-    
+def render_tournament_page():
     today = date.today().strftime("%Y-%m-%d")
-
-    if request.method == "POST":
-        TournamentRepository.add(Tournament(request.form["day"]))
-        tournament = db.session.query(Tournament).filter_by(date = today).first()
-        return redirect(url_for("select_team", id = tournament.id))
-
     return render_template("new_tournament.html", today = today)
 
-
-@app.route('/tournament/<id>', methods = ["GET", "POST"])
+@app.route('/', methods = ["POST"])
 # @login_required
-def select_team(id):
-    
-    players = [player.name for player in PlayerRepository.select_all(Player)]
-    day = TournamentRepository.get_date(Tournament, id)
-    print(day)
-    if request.method == "POST":
-        a = request.form.getlist("A")
-        print(a)
-        team_A = Team(0, "A")
+def create_new_tournament():    
+    tournament = Tournament(request.form["day"])
+    TournamentRepository.add(tournament)
+    return redirect(url_for("render_team_page", tournament_id = tournament.id))
+
+
+@app.route('/tournament/<tournament_id>', methods = ["GET"])
+# @login_required
+def render_team_page(tournament_id):
+    players = PlayerRepository.select_all()
+    return render_template(
+            "select_team.html",
+            players = players,
+            tournament_id = tournament_id
+        )
+
+@app.route('/tournament/<tournament_id>/teams', methods = ["POST"])
+# @login_required
+def create_team(tournament_id):
+    teams_letters = ['A', 'B']
+    players = PlayerRepository.select_all()
+
+    for letter in teams_letters:
+        players_id = request.form.getlist(letter)
         
-        team_A.players.append(PlayerRepository.select(Player, a[0]))
-        team_A.players.append(PlayerRepository.select(Player, a[1]))
+        team = Team(points = 0, letter = letter, tournament_id = tournament_id)
         
-        db.session.add(team_A)
-        db.session.commit()
-
-
-        return render_template("select_team.html", is_true = True, players = players)
+        for id in players_id:
+            player = next(x for x in players if str(x.id) == id )
+            team.players.append(player)
         
+        TeamRepository.add(team)
 
-        
-    return render_template("select_team.html", is_true = True, players = players)
+    return redirect(url_for("render_match_page", tournament_id = tournament_id))
 
+@app.route('/tournament/<tournament_id>/matches', methods = ["GET"])
+def render_match_page(tournament_id):
+    teams = TeamRepository.select_all(tournament_id)
+    teamsObject = {}
+    for team in teams:
+        teamsObject[team.letter] = {
+            'players': [
+                    {
+                        'name': player.name,
+                        'id': player.id
+                    } for player in team.players
+                ],
+            'id': team.id
+        }
 
-@app.route('/test', methods = ["GET", "POST"])
-def matches():
-    # a = request.args.get('a', None)
-    # b = request.args.get('b', None)
-    
+    return render_template("matches.html", teams = teamsObject)
 
-    return render_template("matches.html", is_true = True)
- 
+@app.route('/tournament/<tournament_id>/matches', methods = ["POST"])
+def create_match(tournament_id):
+    return redirect(url_for("render_match_page"))
+
 if __name__ == "__main__":
     app.run(debug=True)

@@ -73,7 +73,8 @@ db.mapper(Goal, goals_mapping, properties={
 })
 
 db.mapper(Team, teams_mapping, properties={
-    'players' : relationship(Player, secondary = team_player_relationship, lazy = 'dynamic')
+    'players' : relationship(Player, secondary = team_player_relationship, lazy = 'dynamic'),
+    'tournament': relationship(Tournament, backref = 'tournament')
 })
 
 db.mapper(Match, match_mapping)
