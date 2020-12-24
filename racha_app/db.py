@@ -46,22 +46,21 @@ team_player_relationship = db.Table(
     db.Column('player_id', UUID(as_uuid=True), db.ForeignKey('players.id'))
 )
 
+match_mapping = db.Table(
+    'matches',
+    db.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
+    db.Column('home_id', UUID(as_uuid=True), db.ForeignKey('teams.id')),
+    db.Column('away_id', UUID(as_uuid=True), db.ForeignKey('teams.id')),
+    db.Column('home_goals', db.Integer, nullable = False),
+    db.Column('away_goals', db.Integer, nullable = False),
+    db.Column('tournament_id', UUID(as_uuid=True), db.ForeignKey('tournaments.id'))
+)
+
 goals_mapping = db.Table(
     'goals',
     db.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
     db.Column('day', db.Date),
     db.Column('player_id', UUID(as_uuid=True), db.ForeignKey('players.id')),
-)
-
-
-match_mapping = db.Table(
-    'matches',
-    db.Column('id', UUID(as_uuid=True), primary_key=True, default=uuid.uuid4),
-    db.Column('team_1', db.ARRAY(String)),
-    db.Column('team_2', db.ARRAY(String)),
-    db.Column('goal_1', db.Integer, nullable = False),
-    db.Column('goal_2', db.Integer, nullable = False),
-    db.Column('day', db.Date)
 )
 
 db.mapper(Player, players_mapping)
@@ -73,12 +72,16 @@ db.mapper(Goal, goals_mapping, properties={
 })
 
 db.mapper(Team, teams_mapping, properties={
-    'players' : relationship(Player, secondary = team_player_relationship, lazy = 'dynamic'),
-    'tournament': relationship(Tournament, backref = 'tournament')
+    'players' : relationship(Player, secondary = team_player_relationship)
 })
 
-db.mapper(Match, match_mapping)
-db.mapper(Tournament, tournament_mapping)
+db.mapper(Match, match_mapping, properties={
+    'home': relationship(Team, foreign_keys = match_mapping.c.home_id),
+    'away': relationship(Team, foreign_keys = match_mapping.c.away_id)  
+})
+db.mapper(Tournament, tournament_mapping, properties={
+    'teams': relationship(Team, backref = 'teams')
+})
 
 # users_mapping = db.Table(
 #     'users',

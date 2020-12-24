@@ -4,7 +4,7 @@ from racha_app.db import db
 class Repository:
     
     @staticmethod
-    def add(entity):
+    def save(entity):
         db.session.add(entity)
         db.session.commit()
 

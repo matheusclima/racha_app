@@ -8,88 +8,152 @@
 </head>
 
 <body>
-    {% set team_letters = ["A", "B", "C", "D"] %}
-    {% set bg_color = ["white", "orange", "black", "lightgreen"] %}
-    <div page id="page2">
 
-        <form action="" method="POST" style="height: inherit; padding-left: 50px; padding-top: 15px;">
-            <input change-page class="btn" type="button" value="Voltar">
-            <input class="btn" type="button" value="Adicionar partida">
+    <div page>
+
+        <form action="/tournament/{{ tournament_id }}/matches/post" method="POST"
+            style="height: inherit; padding-left: 50px; padding-top: 15px;">
+
+            <input save-match class="btn" type="submit" value="Salvar Partida">
 
             <div style="height: 330px; padding-bottom: 20px;">
-                <select id="select_match" size="12" style="float: left; margin-top: 25px;">
-                    <option>A x B</option>
-                    <option>B x A</option>
-                </select>
-                {% for k in range(2) %}
-                <table match class="team-table" style="margin-right: 10px; display: none;">
-                    <tr>
-                        <div class="team_container" style="display: inline-block;">
-                            <th rowspan="7">
-                                <h3 team class="rotate-text"></h3>
-                            </th>
-                        </div>
-                        <th class="team-player">Jogador</th>
-                        <th class="team-match">Gols</th>
-                    </tr>
-                    {% for i in range(2) %}
-                    <tr>
-                        <td players class="team-player" style="font-weight: bold;"></td>
-                        <td class="team-match">
-                            <input type="number" class="goal-field" name="stats" min="0" value="0">
-                        </td>
-                    </tr>
+                <select id="select_match" style="float: left; margin-top: 25px;"></select>
+                <div table style="display: none;">
+                    {% for k in range(2) %}
+                    <table match class="team-table" style="margin-right: 10px;">
+                        <tr>
+                            <div class="team_container" style="display: inline-block;">
+                                <th rowspan="7">
+                                    <h3 team class="rotate-text"></h3>
+                                </th>
+                            </div>
+                            <th class="team-player">Jogador</th>
+                            <th class="team-match">Gols</th>
+                        </tr>
+                        {% for i in range(2) %}
+                        <tr>
+                            <td players class="team-player" style="font-weight: bold;"></td>
+                            <td class="team-match">
+                                <input goals type="number" class="goal-field" min="0" value="0">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
                     {% endfor %}
-                </table>
-                {% endfor %}
+                </div>
             </div>
         </form>
     </div>
+
+    <script type="text/javascript" language="javascript" src="../../static/js/jquery.js"></script>
+
     <script>
 
-        var teamsObject = {}
+        var teamsObject = JSON.parse('{{ teams|tojson|safe }}')
         var matchesObject = {}
 
         const pages = document.querySelectorAll('[page]')
-        
+        const select = document.getElementById('select_match')
+        const $table = $('[table]')
+        const tournamentId = '{{ tournament_id }}'
+
+        keys = Object.keys(teamsObject)
+        for (home in teamsObject) {
+            for (away in teamsObject) {
+                if (home != away) {
+                    option = document.createElement('option')
+                    option.innerHTML = home + ' x ' + away
+                    select.appendChild(option)
+                    select.size += 1
+                }
+            }
+        }
+
         document.getElementById('select_match').onchange = function (e) {
 
+            e.preventDefault()
             const matchSelector = e.target
-            const form = matchSelector.parentNode.parentNode
-            const formData = new FormData(form)
             const h3Content = document.querySelectorAll('[team]')
-            const table = document.querySelectorAll('[match]')
             const bgColors = {
                 "A": "white",
                 "B": "orange",
                 "C": "black",
                 "D": "lightgreen"
             }
-            
-            teamsObject = JSON.parse('{{ teams|tojson|safe }}')
-            console.log(teamsObject)
+
             var matchInfo = matchSelector.value,
                 home = matchInfo[0],
                 away = matchInfo[matchInfo.length - 1];
-    
+
             var match = [home, away]
 
+            $table.show()
             for (var i = 0; i < match.length; i++) {
-                table[i].style.display = 'table'
+
                 h3Content[i].parentNode.style['background-color'] = bgColors[match[i]]
                 h3Content[i].innerHTML = 'Time ' + match[i]
-                
+
                 for (var j = 0; j < teamsObject[match[i]].players.length; j++) {
                     index = j + 2 * i
+                    document.querySelectorAll('[goals]')[index].name = match[i]
                     document.querySelectorAll('[players]')[index].innerHTML = teamsObject[match[i]].players[j].name
                 }
             }
 
-            for (let data of formData) {
-                console.log(data, index)
-            }
-            form.reset()
         }
+
+        $('form').submit(function (e) {
+
+            e.preventDefault()
+
+            const form = e.target
+            const formData = new FormData(form)
+            var request = new XMLHttpRequest()
+
+            var match = {}
+            var hg = 0, ag = 0
+
+            home_key = select.value.split(" ")[0]
+            away_key = select.value.split(" ")[2]
+            
+            
+            for (let data of formData) {
+                if (home_key == data[0]) {
+                    hg = hg + parseInt(data[1])
+                }
+                else {
+                    ag = ag + parseInt(data[1])
+                }
+            }
+
+            match['home'] = {
+                id: teamsObject[home_key].id,
+                goals: hg
+            }
+            match['away'] = {
+                id: teamsObject[away_key].id,
+                goals: ag
+            }
+
+            request.open("POST", "/tournament/{{ tournament_id }}/matches/post", true)
+            request.setRequestHeader("Content-Type", "application/json; charset=UTF-8")
+            request.send(JSON.stringify(match))
+
+            select.remove(select.selectedIndex)
+            $table.hide()
+
+            select.size += -1
+            
+            if (select.size == 0) {
+                window.location.href = `/tournament/${tournamentId}/results`
+            }
+            
+            form.reset()
+
+        }
+        )
+
+
 
     </script>
 </body>

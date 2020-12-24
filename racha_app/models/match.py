@@ -1,15 +1,42 @@
 class Match:
 
     id = None
-    team_1 = None
-    team_2 = None
-    goal_1 = None
-    goal_2 = None
-    day = None
+    home_id = None
+    away_id = None
+    home_goals = None
+    away_goals = None
+    tournament_id = None
+    home = None
+    away = None
 
-    def __init__(self, team_1, team_2, goal_1, goal_2, day):
-        self.team_1 = team_1
-        self.team_2 = team_2
-        self.goal_1 = goal_1
-        self.goal_2 = goal_2
-        self.day = day
+    def __init__(self, home_id, away_id, home_goals, away_goals, tournament_id):
+        self.home_id = home_id
+        self.away_id = away_id
+        self.home_goals = home_goals
+        self.away_goals = away_goals
+        self.tournament_id = tournament_id 
+
+    @property
+    def winner(self):
+        
+        if self.home_goals > self.away_goals:
+            return self.home
+        
+        if self.away_goals > self.home_goals:
+            return self.away
+        
+        return None
+
+    def assign_points(self):
+
+        if self.winner:
+            self.winner.add_winner_points()
+            return print(f'Time {self.winner.letter} ganhou 3 pontos')
+        else:
+            self.home.add_draw_points()
+            self.away.add_draw_points()
+            return print('Partida empatada, os dois times receberam 1 ponto')
+
+        return print('Erro na atribuição de pontos')
+
+            

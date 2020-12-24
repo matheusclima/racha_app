@@ -10,5 +10,13 @@ class Team:
         self.points = points
         self.letter = letter
         self.tournament_id = tournament_id
-    
 
+    def __str__(self):
+        return f'Team {self.letter}: ' + ', '.join([p.name for p in self.players])
+
+    def add_winner_points(self):
+        self.points += 3
+
+    def add_draw_points(self):
+        self.point += 1
+    
