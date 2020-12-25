@@ -38,8 +38,8 @@ def render_new_player_page():
 @app.route('/s', methods = ['POST'])
 def create_player():
     player = Player(request.form['player_name'])
-    PlayerRepository.add(player)
-    return redirect(url_for('new_player'))
+    PlayerRepository.save(player)
+    return redirect(url_for('render_new_player_page'))
 
 
 # Create a tournament and add to database
@@ -76,7 +76,7 @@ def create_team(tournament_id):
     for letter in teams_letters:
         players_id = request.form.getlist(letter)
         
-        team = Team(points = 0, letter = letter, tournament_id = tournament_id)
+        team = Team(letter = letter, tournament_id = tournament_id)
         
         for id in players_id:
             player = next(x for x in players if str(x.id) == id )
@@ -107,15 +107,13 @@ def render_match_page(tournament_id):
 def create_match(tournament_id):
 
     matchObject = request.get_json()
-    print(matchObject)
     home = matchObject['home']
     away = matchObject['away']
     match = Match(home['id'], away['id'], home['goals'], away['goals'], tournament_id)
     MatchRepository.save(match)
     match.assign_points()
-    # TeamRepository.save(match.home)
-    # TeamRepository.save(match.away)
-
+    TeamRepository.save(match.home)
+    TeamRepository.save(match.away)
     return redirect(url_for('render_match_page', tournament_id = tournament_id))
 
 @app.route('/tournament/<tournament_id>/results', methods = ['GET'])
@@ -124,7 +122,9 @@ def show_tournament(tournament_id):
     tournament = TournamentRepository.select(tournament_id)
     teams = tournament.teams
     teams.sort(key = lambda team: team.points, reverse = True)
+    print(teams[0].points)
     print(teams[0])
+
     
     return render_template('result.html')
 

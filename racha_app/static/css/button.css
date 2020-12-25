@@ -1,0 +1,18 @@
+.btn {
+    font-size: 17px;
+    font-family: Arial;
+    display: inline-block;
+    background-color: #ffffff;
+    width: 170px;
+    height: 40px;
+    margin-top: 15px;
+    margin-left: 50px;
+    border-style: outset;
+    border-color: rgb(100, 100, 100);
+    border-radius: 3px;
+  }
+  
+.btn:hover {
+background-color: lightgreen;
+color: #ffffff;
+}

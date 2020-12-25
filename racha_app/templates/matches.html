@@ -30,7 +30,7 @@
                             <th class="team-player">Jogador</th>
                             <th class="team-match">Gols</th>
                         </tr>
-                        {% for i in range(2) %}
+                        {% for i in range(6) %}
                         <tr>
                             <td players class="team-player" style="font-weight: bold;"></td>
                             <td class="team-match">
@@ -94,7 +94,7 @@
                 h3Content[i].innerHTML = 'Time ' + match[i]
 
                 for (var j = 0; j < teamsObject[match[i]].players.length; j++) {
-                    index = j + 2 * i
+                    index = j + 6 * i
                     document.querySelectorAll('[goals]')[index].name = match[i]
                     document.querySelectorAll('[players]')[index].innerHTML = teamsObject[match[i]].players[j].name
                 }
@@ -140,7 +140,7 @@
             request.send(JSON.stringify(match))
 
             select.remove(select.selectedIndex)
-            $table.hide()
+            
 
             select.size += -1
             

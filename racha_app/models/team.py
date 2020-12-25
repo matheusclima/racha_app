@@ -6,8 +6,8 @@ class Team:
     tournament_id = None
     players = []
 
-    def __init__(self, points, letter, tournament_id):
-        self.points = points
+    def __init__(self, letter, tournament_id):
+        self.points = 0
         self.letter = letter
         self.tournament_id = tournament_id
 
@@ -18,5 +18,5 @@ class Team:
         self.points += 3
 
     def add_draw_points(self):
-        self.point += 1
+        self.points += 1
     

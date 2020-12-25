@@ -13,9 +13,8 @@
     {% set team_class = ["A", "B", "C", "D"] %}
     {% set bg_color = ["white", "orange", "black", "lightgreen"] %}
 
-    <div page>
-        <form action="/tournament/{{ tournament_id }}/teams" method="POST">
-            <input change-page class="btn" type="submit" value="Continuar">
+    <form action="/tournament/{{ tournament_id }}/teams" method="POST">
+        <div>
             {% for k in range(4) %}
             <table class="team-table">
                 <tr>
@@ -26,7 +25,7 @@
                     </div>
                     <th class="team-player">Jogador</th>
                 </tr>
-                {% for i in range(2) %}
+                {% for i in range(6) %}
                 <tr>
                     <td class="team-player">
                         <select teste name="{{ team_class[k] }}">
@@ -40,8 +39,10 @@
                 {% endfor %}
             </table>
             {% endfor %}
-        </form>
-    </div>
+        </div>
+
+        <input class="btn" type="submit" value="Salvar times">
+    </form>
 
 </body>
 
