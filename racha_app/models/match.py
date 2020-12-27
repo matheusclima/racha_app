@@ -14,29 +14,21 @@ class Match:
         self.away_id = away_id
         self.home_goals = home_goals
         self.away_goals = away_goals
-        self.tournament_id = tournament_id 
+        self.tournament_id = tournament_id
 
     @property
     def winner(self):
-        
         if self.home_goals > self.away_goals:
             return self.home
-        
+
         if self.away_goals > self.home_goals:
             return self.away
-        
+
         return None
 
     def assign_points(self):
-
         if self.winner:
             self.winner.add_winner_points()
-            return print(f'Time {self.winner.letter} ganhou 3 pontos')
         else:
             self.home.add_draw_points()
             self.away.add_draw_points()
-            return print('Partida empatada, os dois times receberam 1 ponto')
-
-        return print('Erro na atribuição de pontos')
-
-            
